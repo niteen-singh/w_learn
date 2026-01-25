@@ -190,3 +190,6 @@ app.route("/users/:id")
 
 // ----------------------
 app.listen(8000, () => console.log("Server started on PORT 8000"));
+
+
+//not fully done lerned how to use postman 
