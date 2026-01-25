@@ -87,6 +87,11 @@ app.use(express.json()); // parse JSON bodies
 
 const DATA_FILE = path.join(__dirname, "MOCK_DATA.json");
 
+app.use((req, res, next) => {
+    console.log("hello from middleware");
+    next();
+})
+
 // ----------------------
 // Helper functions
 async function readUsers() {
