@@ -128,10 +128,14 @@ app.get("/users", async (req, res) => {
 app.post("/users", async (req, res) => {
     try {
         const users = await readUsers();
-        const newUser = { id: users.length + 1, ...req.body };
-        users.push(newUser);
-        await writeUsers(users);
-        res.status(201).json({ status: "success", id: newUser.id });
+        if (!body){
+            res.status(400).json({ status: "Failed requires a body"});
+        }else{
+            const newUser = { id: users.length + 1, ...req.body };
+            users.push(newUser);
+            await writeUsers(users);
+            res.status(201).json({ status: "success", id: newUser.id });
+        }
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
