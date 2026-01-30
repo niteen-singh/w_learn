@@ -9,5 +9,6 @@ const server = http.createServer((req, res) =>{
 })
 
 server.listen(8000, () => {
-    console.log("Sever Started");
+    console.log("Sever Started on PORT: 8000");
+
 })
