@@ -1,3 +1,8 @@
+
+
+
+
+
 //const express = require("express");
 //const fs = require("fs");
 
@@ -77,7 +82,7 @@ app.listen(8000, () => console.log("server Started at PORT 8000"));*/
 
 
 
-
+const pool = require("./db");
 const express = require("express");
 const fs = require("fs/promises"); // promise-based fs
 const path = require("path");
@@ -204,3 +209,25 @@ app.listen(8000, () => console.log("Server started on PORT 8000"));
 
 
 //not fully done lerned how to use postman 
+
+
+
+
+
+
+
+
+
+/*async function testDB() {
+  try {
+    const res = await pool.query("SELECT NOW()");
+    console.log("Connected at:", res.rows[0]);
+  } catch (err) {
+    console.error("DB connection error:", err);
+  }
+}
+
+testDB();*/
+
+
+
