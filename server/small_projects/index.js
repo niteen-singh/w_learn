@@ -90,7 +90,6 @@ const path = require("path");
 const app = express();
 app.use(express.json()); // parse JSON bodies
 
-const DATA_FILE = path.join(__dirname, "MOCK_DATA.json");
 
 app.use((req, res, next) => {
     console.log("hello from middleware");
@@ -98,17 +97,6 @@ app.use((req, res, next) => {
     res.setHeader("X-MyName", "NiteenKumar Singh");
     next();
 })
-
-// ----------------------
-// Helper functions
-async function readUsers() {
-    const data = await fs.readFile(DATA_FILE, "utf-8");
-    return JSON.parse(data);
-}
-
-async function writeUsers(users) {
-    await fs.writeFile(DATA_FILE, JSON.stringify(users, null, 2));
-}
 
 // ----------------------
 // Home route
@@ -120,8 +108,14 @@ app.get("/", (req, res) => {
 // GET all users
 app.get("/users", async (req, res) => {
     try {
-        const users = await readUsers();
-        res.json(users);
+
+        const query = `SELECT * FROM users;`;
+        const result = await pool.query(query);
+        res.status(200).json({
+            message : 'users fetched Succesufully',
+            user : result.rows,
+         });
+
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
@@ -132,15 +126,20 @@ app.get("/users", async (req, res) => {
 // POST new user
 app.post("/users", async (req, res) => {
     try {
-        const users = await readUsers();
-        if (!body){
-            res.status(400).json({ status: "Failed requires a body"});
-        }else{
-            const newUser = { id: users.length + 1, ...req.body };
-            users.push(newUser);
-            await writeUsers(users);
-            res.status(201).json({ status: "success", id: newUser.id });
-        }
+        
+        const {first_name, last_name, email, gender} = req.body;
+
+        const query = `INSERT INTO users (f_name, l_name, email, gender)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;`;
+
+        const values = [first_name, last_name, email, gender];
+        const result = await pool.query(query, values);
+        res.status(201).json({
+            message : 'user created Succesufully',
+            user : result.rows[0],
+         });
+
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error");
@@ -154,10 +153,11 @@ app.route("/users/:id")
     .get(async (req, res) => {
         try {
             const id = Number(req.params.id);
-            const users = await readUsers();
-            const user = users.find(u => u.id === id);
-            if (!user) return res.status(404).send("User not found");
-            res.json(user);
+            const query = `SELECT * FROM users WHERE id=$1`;
+            const result = await pool.query(query, [id]);
+            if (result.rows.length === 0) return res.status(404).send("User not found");
+            res.json(result.rows[0]);
+
         } catch (err) {
             console.error(err);
             res.status(500).send("Server error");
@@ -167,19 +167,28 @@ app.route("/users/:id")
     .patch(async (req, res) => {
         try {
             const id = Number(req.params.id);
-            const users = await readUsers();
-            const user = users.find(u => u.id === id);
-            if (!user) return res.status(404).send("User not found");
+
+            const query = `SELECT * FROM users WHERE id=$1`;
+            const user = await pool.query(query, [id]);
+
+            if (user.rows.length === 0) return res.status(404).send("User not found");
 
             // Partial update
             const { first_name, last_name, email, gender } = req.body;
-            if (first_name) user.first_name = first_name;
-            if (last_name) user.last_name = last_name;
-            if (email) user.email = email;
-            if (gender) user.gender = gender;
+            
+            const update = `UPDATE users
+                            SET
+                                f_name = $1,
+                                l_name = $2,
+                                email = $3,
+                                gender = $4
+                            WHERE id = $5`;
 
-            await writeUsers(users);
+            const values = [first_name, last_name, email, gender, id];
+            await pool.query(update ,values);
+
             res.send("User updated successfully");
+            
         } catch (err) {
             console.error(err);
             res.status(500).send("Server error");
@@ -189,14 +198,10 @@ app.route("/users/:id")
     .delete(async (req, res) => {
         try {
             const id = Number(req.params.id);
-            let users = await readUsers();
-            const initialLength = users.length;
 
-            users = users.filter(u => u.id !== id);
+            const query = `DELETE FROM users WHERE id=$1`;
+            await pool.query(query, [id]);
 
-            if (users.length === initialLength) return res.status(404).send("User not found");
-
-            await writeUsers(users);
             res.send("User deleted successfully");
         } catch (err) {
             console.error(err);
@@ -206,6 +211,7 @@ app.route("/users/:id")
 
 // ----------------------
 app.listen(8000, () => console.log("Server started on PORT 8000"));
+
 
 
 //not fully done lerned how to use postman 
