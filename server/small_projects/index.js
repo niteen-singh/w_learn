@@ -10,7 +10,15 @@ app.use(hello);
 
 app.use("/users", userRouter);
 
-app.listen(8000, () => console.log("Server started on PORT 8000"));
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong" });
+});
+
+const port = process.env.PORT;
+
+app.listen(port, () => console.log("Server started"));
 
 /*async function testDB() {
   try {
