@@ -86,6 +86,8 @@ const pool = require("./db");
 const express = require("express");
 const fs = require("fs/promises"); // promise-based fs
 const path = require("path");
+require("dotenv").config();
+
 
 const app = express();
 app.use(express.json()); // parse JSON bodies
