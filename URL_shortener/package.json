@@ -1,0 +1,17 @@
+{
+  "name": "url_shortener",
+  "version": "1.0.0",
+  "description": "url shortener",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "nanoid": "^5.1.6",
+    "pg": "^8.18.0"
+  }
+}
