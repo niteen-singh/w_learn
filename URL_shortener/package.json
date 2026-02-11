@@ -4,12 +4,13 @@
   "description": "url shortener",
   "license": "ISC",
   "author": "",
-  "type": "module",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
+    "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "nanoid": "^5.1.6",
     "pg": "^8.18.0"
