@@ -17,11 +17,17 @@ app.post("/url", async (req, res) => {
         const query = `INSERT INTO urls(short_code, orignal_url) VALUES($1, $2) RETURNING *;`;
         const values = [short_url, url];  
         const result = await pool.query(query, values);
-        res.status(201).json({
-            result: result.rows[0]});
+        if(result.rows.length !== 0){
+            res.status(201).json({result: result.rows[0]});
+        }else{
+            res.status(404).json({
+                message: "no data provided"
+            })
+        }
+
     }catch(err){
         console.error(err);
-        res.status(500).send("Server error");
+        res.status(500).send("Server error noob");
     }
 })
 
@@ -47,10 +53,12 @@ app.get("/:id", async (req, res) => {
             WHERE short_code = $1`;
         await pool.query(ins_query, [short_url]);
         const result = await pool.query(query, [short_url]);
-        res.redirect(result.rows[0].orignal_url);
+        let originalUrl = result.rows[0].orignal_url;
+        originalUrl = "http://" + originalUrl;
+        res.redirect(originalUrl);
     }catch(err){
         console.error(err);
-        res.status(500).send("Server error");
+        res.status(500).send("Server error noob");
     } 
 })
 
