@@ -2,27 +2,40 @@ const express = require("express");
 require("dotenv").config();
 const { nanoid } = require("nanoid");
 const pool = require("./db")
+const cors = require("cors");
+
 
 const app = express();
+app.use(cors());
 const port = process.env.PORT;
 app.use(express.json()); 
 
 //const code = nanoid(6);
 //console.log(code);
+async function check(url){
+    const query = `SELECT short_code FROM urls WHERE orignal_url=$1;`;
+    const result = await pool.query(query, [url]);
+    return result.rows[0];
+}
 
 app.post("/url", async (req, res) => {
     try{
         const url = req.body.url;
-        const short_url = nanoid(6);
-        const query = `INSERT INTO urls(short_code, orignal_url) VALUES($1, $2) RETURNING *;`;
-        const values = [short_url, url];  
-        const result = await pool.query(query, values);
-        if(result.rows.length !== 0){
-            res.status(201).json({result: result.rows[0]});
+        const exist = await check(url);
+        if(exist){
+            res.status(201).json({result: exist});
         }else{
-            res.status(404).json({
-                message: "no data provided"
-            })
+            const short_url = nanoid(6);
+            const query = `INSERT INTO urls(short_code, orignal_url) VALUES($1, $2) RETURNING *;`;
+            const values = [short_url, url];  
+            const result = await pool.query(query, values);
+            if(result.rows.length !== 0){
+                res.status(201).json({result: result.rows[0]});
+            }else{
+                res.status(404).json({
+                    message: "no data provided"
+                })
+            }
         }
 
     }catch(err){

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>URL Shortener</title>
+</head>
+<body>
+  <h1>URL Shortener</h1>
+
+  <input type="text" id="urlInput" placeholder="Enter URL (example.com)" />
+  <button onclick="shortenUrl()">Shorten</button>
+
+  <p id="result"></p>
+
+  <hr>
+
+  <h2>Check Analytics</h2>
+  <input type="text" id="analyticsInput" placeholder="Enter short code" />
+  <button onclick="getAnalytics()">Get Analytics</button>
+
+  <p id="analyticsResult"></p>
+
+  <script>
+    const BASE_URL = "http://localhost:8000";
+
+    async function shortenUrl() {
+      const url = document.getElementById("urlInput").value;
+
+      const response = await fetch(`${BASE_URL}/url`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await response.json();
+
+      if (response.status === 201) {
+        const shortCode = data.result.short_code;
+
+        document.getElementById("result").innerHTML =
+          `Short URL: 
+           <a href="${BASE_URL}/${shortCode}" target="_blank">
+             ${BASE_URL}/${shortCode}
+           </a>
+           <br>
+           Short Code: ${shortCode}`;
+      } else {
+        document.getElementById("result").innerText = "Error shortening URL";
+      }
+    }
+
+    async function getAnalytics() {
+      const shortCode = document.getElementById("analyticsInput").value;
+
+      const response = await fetch(`${BASE_URL}/url/analytics/${shortCode}`);
+      const data = await response.json();
+
+      if (response.status === 200 && data.result) {
+        document.getElementById("analyticsResult").innerText =
+          `Total Clicks: ${data.result.analytics}`;
+      } else {
+        document.getElementById("analyticsResult").innerText =
+          "Short URL not found";
+      }
+    }
+  </script>
+</body>
+</html>
