@@ -3,20 +3,38 @@ require("dotenv").config();
 const { nanoid } = require("nanoid");
 const pool = require("./db")
 const cors = require("cors");
-
+const path = require('path');
 
 const app = express();
 app.use(cors());
 const port = process.env.PORT;
 app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 //const code = nanoid(6);
 //console.log(code);
+
 async function check(url){
     const query = `SELECT short_code FROM urls WHERE orignal_url=$1;`;
     const result = await pool.query(query, [url]);
     return result.rows[0];
 }
+
+app.get("/signup", (req, res) => {
+    res.render('user')
+})
+
+app.post("/signup", async (req, res) => {
+    const {name, email, password} = req.body;
+    const query = `INSERT INTO usersURL(name, email, password) VALUES($1, $2, $3);`;
+    const values = [name, email, password];
+    await pool.query(query, values);
+    res.status(201).json({
+        message: "signup successfull"
+    })
+})
 
 app.post("/url", async (req, res) => {
     try{
@@ -57,7 +75,7 @@ app.get("/url/analytics/:id", async (req, res) => {
     }
 })
 
-app.get("/:id", async (req, res) => {
+app.get("/red/:id", async (req, res) => {
     try{
         const short_url = req.params.id;
         const query = `SELECT orignal_url FROM urls WHERE short_code=$1;`;
