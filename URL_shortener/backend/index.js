@@ -4,12 +4,20 @@ const { nanoid } = require("nanoid");
 const pool = require("./db")
 const cors = require("cors");
 const path = require('path');
+const {v4: uuid} = require("uuid");
+const {setUser, getUser} = require("./service/auth");
+const cookieParser = require('cookie-parser');
+const { restrictToLoggedInUsersOnly } = require("./middlewares/auth");
+
 
 const app = express();
 app.use(cors());
 const port = process.env.PORT;
+
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
@@ -31,12 +39,37 @@ app.post("/signup", async (req, res) => {
     const query = `INSERT INTO usersURL(name, email, password) VALUES($1, $2, $3);`;
     const values = [name, email, password];
     await pool.query(query, values);
+    
     res.status(201).json({
         message: "signup successfull"
     })
+
 })
 
-app.post("/url", async (req, res) => {
+app.get("/login", (req, res) => {
+    res.render('userLogin')
+})
+
+app.post("/login", async (req, res) => {
+    const {email, password} = req.body;
+    const query = `SELECT * FROM usersURL WHERE email = $1 AND password = $2;`;
+    const values = [email, password];
+    const result = await pool.query(query, values);
+    if (result.rows.length > 0){
+        const sid = uuid();
+        setUser(sid, email);
+        res.cookie("uid", sid)
+        res.status(200).json({
+            message: "login successfull"
+        })
+    }else{
+        res.status(401).json({
+            message: "Wrong Credentials"
+        })
+    }
+})
+
+app.post("/url", restrictToLoggedInUsersOnly, async (req, res) => {
     try{
         const url = req.body.url;
         const exist = await check(url);
