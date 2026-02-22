@@ -28,9 +28,8 @@ async function handlerUserLogin (req, res) {
         const values = [email, password];
         const result = await pool.query(query, values);
         if (result.rows.length > 0){
-            const sid = uuid();
-            setUser(sid, email);
-            res.cookie("uid", sid)
+            const id = setUser(email);
+            res.cookie("uid", id);
             res.status(200).json({
                 message: "login successfull"
             })
@@ -41,9 +40,17 @@ async function handlerUserLogin (req, res) {
         }
     }
 
+
+async function check(url){
+    const query = `SELECT short_code FROM urls WHERE orignal_url=$1;`;
+    const result = await pool.query(query, [url]);
+    return result.rows[0];
+}
+
 async function handlerMainPage(req, res) {
     try{
         const url = req.body.url;
+        if(!url){res.end("no data provided")}
         const exist = await check(url);
         if(exist){
             res.status(201).json({result: exist});

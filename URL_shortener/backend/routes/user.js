@@ -5,12 +5,6 @@ const router = express.Router();
 const { restrictToLoggedInUsersOnly } = require("../middlewares/auth");
 const {handlerUserSignUpPage, handlerUserSignUp, handlerUserLoginPage, handlerUserLogin, handlerMainPage, handlerAnalytics, handlerRedirect} = require("../controllers/user");
 
-async function check(url){
-    const query = `SELECT short_code FROM urls WHERE orignal_url=$1;`;
-    const result = await pool.query(query, [url]);
-    return result.rows[0];
-}
-
 router.route("/signup")
     .get(handlerUserSignUpPage)
     .post(handlerUserSignUp)
@@ -21,8 +15,8 @@ router.route("/login")
 
 router.post("/url", restrictToLoggedInUsersOnly, handlerMainPage)
 
-router.get("/url/analytics/:id", handlerAnalytics)
+router.get("/url/analytics/:id", restrictToLoggedInUsersOnly, handlerAnalytics)
 
-router.get("/red/:id", handlerRedirect)
+router.get("/red/:id", restrictToLoggedInUsersOnly, handlerRedirect)
 
 module.exports = router;
