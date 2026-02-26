@@ -27,12 +27,11 @@ async function handlerUserLogin (req, res) {
         const query = `SELECT * FROM usersURL WHERE email = $1 AND password = $2;`;
         const values = [email, password];
         const result = await pool.query(query, values);
+
         if (result.rows.length > 0){
-            const id = setUser(email);
-            res.cookie("uid", id);
-            res.status(200).json({
-                message: "login successfull"
-            })
+            const token = setUser(email);
+            //res.cookie("uid", token);
+            return res.json({token});
         }else{
             res.status(401).json({
                 message: "Wrong Credentials"
