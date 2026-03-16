@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const userRouter = require("./routes/user");
+const blogRouter = require("./routes/blog");
+
 const cookieparser = require('cookie-parser');
 const { check } = require("./middlewares/authentication");
 
@@ -14,6 +16,7 @@ app.use(cookieparser());
 app.use(check);
 
 app.use("/", userRouter);
+app.use("/", blogRouter);
 
 app.get("/", (req, res) => {
     res.render("home");

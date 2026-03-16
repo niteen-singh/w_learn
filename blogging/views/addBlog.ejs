@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title>HomePage</title>
+</head>
+<body>
+
+    <%- include('./partials/nav') %>
+    <div class="container mt-3">
+        <form actions="/blog">
+            <div class="mb-3">
+                <label for="title">Title</label>
+                <input id="title" name="title" type="text" aria-describedby="title">
+                <textarea class="form-control mt-3" placeholder="Write your Blog" id="blog" style="height: 100px"></textarea>
+                <button type="submit"></button>
+            </div>
+        </form>
+    </div>
+    <%- include('./partials/script') %>
+</body>
+</html>
