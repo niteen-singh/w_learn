@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <%- include('./partials/head') %>
-    <title>HomePage</title>
-</head>
-<body>
-
-    <%- include('./partials/nav') %>
-    <%= JSON.stringify(user) %>
-    <%- include('./partials/script') %>
-</body>
+    <head>
+        <%- include('./partials/head') %>
+        <title>HomePage</title>
+    </head>
+    <body>
+        <%- include('./partials/nav') %> <%= JSON.stringify(user) %> <%-
+        include('./partials/script') %>
+    </body>
 </html>
