@@ -4,8 +4,13 @@ const pool = require("../db");
 const bcrypt = require("bcrypt");
 const { createToken } = require("../services/authentication");
 
-router.get("/", (req, res) => {
-    res.render("home", { user: req.user });
+router.get("/", async (req, res) => {
+    const query = "SELECT * FROM blog;";
+    const allBlogs = await pool.query(query);
+    res.render("home", {
+        user: req.user,
+        blogs: allBlogs.rows,
+    });
 });
 
 router
