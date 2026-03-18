@@ -11,6 +11,13 @@
             <img src="<%= blog.coverimgurl %>" width="700px" />
             <pre><%= blog.body %></pre>
         </div>
+        <div class="container mt-4">
+            <img
+                src="<%= blog.profile_photo || '/default/avatar.svg' %> "
+                width="35px"
+            />
+            <%= blog.full_name %>
+        </div>
         <%-include('./partials/script') %>
     </body>
 </html>

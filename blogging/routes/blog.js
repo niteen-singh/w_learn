@@ -43,13 +43,22 @@ router
     });
 
 router.get("/blog/:id", async (req, res) => {
-    const query = "SELECT * FROM blog WHERE id=$1;";
+    //const query = "SELECT * FROM blog WHERE id=$1;";
+    const query =
+        "SELECT blog.*, blogusers.full_name, blogusers.profile_photo FROM blog JOIN blogusers ON blog.created_by = blogusers.id WHERE blog.id = $1;";
     const values = [req.params.id];
     const data = await pool.query(query, values);
     const blog = data.rows[0];
+    //const userQuery =
+    //("SELECT full_name, profile_photo FROM blogusers WHERE id = $1;");
+    //const userRes = await pool.query(userQuery, [blog.created_by]);
+    //const user = userRes.rows[0];
+
     //console.log(blog.rows);
+    //console.log(req.user);
+    //console.log(blog);
     res.render("blog", {
-        user: req.user,
+        //user: user,
         blog,
     });
 });
