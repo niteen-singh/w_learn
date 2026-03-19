@@ -49,6 +49,9 @@ router.get("/blog/:id", async (req, res) => {
     const values = [req.params.id];
     const data = await pool.query(query, values);
     const blog = data.rows[0];
+
+    const commentQuery = "SELECT * FROM comment WHERE blogid=$1";
+    const comments = await pool.query(commentQuery, values);
     //const userQuery =
     //("SELECT full_name, profile_photo FROM blogusers WHERE id = $1;");
     //const userRes = await pool.query(userQuery, [blog.created_by]);
@@ -58,9 +61,23 @@ router.get("/blog/:id", async (req, res) => {
     //console.log(req.user);
     //console.log(blog);
     res.render("blog", {
-        //user: user,
+        user: req.user,
+        comments: comments.rows,
         blog,
     });
+});
+
+router.post("/comment/:id", async (req, res) => {
+    const blogId = req.params.id;
+    const { content } = req.body;
+    const { full_name } = req.user;
+    //console.log(req.user);
+    //console.log(blogId);
+    const query =
+        "INSERT INTO comment (content, createdby, blogid) VALUES($1, $2, $3);";
+    const values = [content, full_name, blogId];
+    await pool.query(query, values);
+    res.redirect(`/blog/${blogId}`);
 });
 
 module.exports = router;
